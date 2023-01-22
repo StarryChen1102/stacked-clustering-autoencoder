@@ -2,18 +2,18 @@ library(dplyr)
 library(ggplot2)
 library(reshape2)
 
-d.ori <- read.table("data3_latent/data3_00000.csv", sep=",", header=TRUE)
-d.after <- read.table("data3_latent/data3_11111_2.csv", sep=",", header=TRUE)
+d.ori <- read.table("mousebrain_latent/mousebrain_00000.csv", sep=",", header=TRUE)
+d.after <- read.table("mousebrain_latent/mousebrain_11111_2.csv", sep=",", header=TRUE)
 
-#d1 <- read.table("data3_latent/data3_1011_2.csv", sep=",", header=TRUE)
-d2 <- read.table("data3_latent/data3_11011_new.csv", sep=",", header=TRUE)
-d3 <- read.table("data3_latent/data3_11101_new.csv", sep=",", header=TRUE)
-d4 <- read.table("data3_latent/data3_11110_new.csv", sep=",", header=TRUE)
+d1 <- read.table("mousebrain_latent/mousebrain_no_clustering.csv", sep=",", header=TRUE)
+d2 <- read.table("mousebrain_latent/mousebrain_no_kmeans.csv", sep=",", header=TRUE)
+d3 <- read.table("mousebrain_latent/mousebrain_no_cell_cell.csv", sep=",", header=TRUE)
+d4 <- read.table("mousebrain_latent/mousebrain_no_consistency.csv", sep=",", header=TRUE)
 
-#d1 <- read.table("data3_latent/data3_0rec1clu0center0cell.csv", sep=",", header=TRUE)
-d2 <- read.table("data3_latent/data3_11011_2.csv", sep=",", header=TRUE)
-d3 <- read.table("data3_latent/data3_11101_2.csv", sep=",", header=TRUE)
-d4 <- read.table("data3_latent/data3_11110_2.csv", sep=",", header=TRUE)
+#d1 <- read.table("mousebrain_latent/mousebrain_1011.csv", sep=",", header=TRUE)
+d2 <- read.table("mousebrain_latent/mousebrain_11011_2.csv", sep=",", header=TRUE)
+d3 <- read.table("mousebrain_latent/mousebrain_11101_2.csv", sep=",", header=TRUE)
+d4 <- read.table("mousebrain_latent/mousebrain_11110_2.csv", sep=",", header=TRUE)
 
 d.ori <- 100*d.ori/max(d.ori)
 d.after <- 100*d.after/max(d.after)
@@ -22,8 +22,8 @@ d2 <- 100*d2/max(d2)
 d3 <- 100*d3/max(d3)
 d4 <- 100*d4/max(d4)
 
-id <- read.table("data3_latent/idents3_raw_1.csv", sep="\t", header=TRUE)
-id.order <- order(id$x)
+id <- read.table("mousebrain_latent/mousebrain_idents.csv", sep="\t", header=TRUE)
+id.order <- order(id$X8)
 id2 <- id[id.order,]
 
 d <- d.ori
@@ -109,11 +109,11 @@ d.all <- rbind(d.all, d.plot)
 p <- ggplot(data = d.all, mapping = aes(x = value, y=..density.., color = type)) + geom_freqpoly(bins = 250)
 p
 
-d.between <- d.all[id2$x[d.all$B] != id2$x[d.all$variable],]
+d.between <- d.all[id2$idents[d.all$B] != id2$idents[d.all$variable],]
 p1 <- ggplot(data = d.between, mapping = aes(x = value, y=..density.., color = type)) + geom_freqpoly(bins = 250)
 p1
 
-d.within <- d.all[id2$x[d.all$B] == id2$x[d.all$variable],]
+d.within <- d.all[id2$idents[d.all$B] == id2$idents[d.all$variable],]
 p2 <- ggplot(data = d.within, mapping = aes(x = value, y=..density.., color = type)) + geom_freqpoly(bins = 250)
 p2
 
@@ -152,12 +152,12 @@ d.all <- rbind(d.all, d.plot)
 p <- ggplot(data = d.all, mapping = aes(x = value, y=..density.., color = type)) + geom_freqpoly(bins = 250)
 p
 
-d.between <- d.all[id2$x[d.all$B] != id2$x[d.all$variable],]
-p1 <- ggplot(data = d.between, mapping = aes(x = value, y=..density.., color = type)) + geom_freqpoly(bins = 250)
+d.between <- d.all[id2[d.all$B] != id2[d.all$variable],]
+p1 <- ggplot(data = d.between, mapping = aes(x = value, y=..density.., color = type)) + geom_freqpoly(bins = 100)
 p1
 
-d.within <- d.all[id2$x[d.all$B] == id2$x[d.all$variable],]
-p2 <- ggplot(data = d.within, mapping = aes(x = value, y=..density.., color = type)) + geom_freqpoly(bins = 250)
+d.within <- d.all[id2[d.all$B] == id2[d.all$variable],]
+p2 <- ggplot(data = d.within, mapping = aes(x = value, y=..density.., color = type)) + geom_freqpoly(bins = 100)
 p2
 
 var(d.between$value[d.between$type=="KL"])
@@ -180,7 +180,7 @@ p <- p + xlab("Cells") + ylab("Cells")
 p
 
 d.all$group <- "within"
-d.all[id2$x[d.all$B] != id2$x[d.all$variable],5] <- "between"
+d.all[id2[d.all$B] != id2[d.all$variable],5] <- "between"
 
 p <- ggplot(data = d.all[d.all$type != "Consistency",], mapping = aes(x = value, y=..density.., color = type, linetype = group)) + geom_freqpoly(bins = 250)
 p
@@ -205,7 +205,7 @@ d.test <- d.all[d.all$type=="Original" | d.all$type=="After",]
 p <- ggplot(data = d.test, mapping = aes(x = value, y=..density.., color = group, linetype = type)) + geom_freqpoly(bins = 250)
 p
 
-d.select <- d.all[id2$x[d.all$B]=="Group1"&id2$x[d.all$variable]=="Group7",]
+d.select <- d.all[id2[d.all$B]=="NK" & id2[d.all$variable]=="Memory CD4 T",]
 p <- ggplot(data = d.select, mapping = aes(x = value, y=..density.., color = type)) + geom_freqpoly(bins = 100)
 p
 
